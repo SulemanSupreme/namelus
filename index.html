@@ -6,6 +6,9 @@
             Suleman Hussain - Professional Vibecoder
         </title>
         <link rel="stylesheet" href="./vibes.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/dark.min.css" integrity="sha512-bfLTSZK4qMP/TWeS1XJAR/VDX0Uhe84nN5YmpKk5x8lMkV0D+LwbuxaJMYTPIV13FzEv4CUOhHoc+xZBDgG9QA==" crossorigin="anonymous" referrerpolicy="no-referrer" />    
     </head>
     <body>
         <canvas id="canvas" width="1920" height="1080">
@@ -13,7 +16,7 @@
         </canvas>
         <div class="overlay"></div>
         <nav>
-            <span class="logo">Suleman</span>
+            <span class="logo define" data-define="This is my name">Suleman</span>
             <div class="navlinks">
                 <a href="/">Home</a>
                 <a href="https://donotes.app">DoNotes</a>
@@ -21,21 +24,41 @@
             </div>
         </nav>
         <section class="hero">
-            <div class="hero-container">
-                <h1 class="greeting" id="greeting">
-                    ...
-                </h1>
-                <h2 class="subtitle">
-                    I'm Suleman. A <span class="self-cert">self-certified</span> <span class="vibecoder">vibecoder</span>
-                </h2>
-                <p class="body-of-text">
-                    <ul>
-                        <li>suleman.dev was taken so I spelled my name backwards and now I'm namelus.dev</li>
-                        <li>You may say that self-certified is no qualification but then you still complain when your self-certified code signing certificates are rejected by operating systems</li>
-                    </ul>
-                </p>
+            <div class="container-for-hero-container">
+                <div class="hero-container">
+                    <h1 class="greeting" id="greeting">
+                        ...
+                    </h1>
+                    <h2 class="subtitle">
+                        I'm Suleman. A <span data-define="This certificate is self-certified" class="self-cert define">certified</span> <span class="vibecoder define" data-define="Someone who codes whatever willy nilly">vibecoder</span>
+                    </h2>
+                    <p class="body-of-text">
+                        <ul>
+                            <li>suleman.dev was taken so I spelt my name backwards and now I'm namelus.dev</li>
+                            <li>You may say that self-certified is no qualification but then you still complain when your self-certified code signing certificates are rejected by operating systems</li>
+                        </ul>
+                    </p>
+                </div>
+                <div class="code-item">
+                    <pre><code class="language-js" id="terrible-code">
+// #vibecoding
+
+const div = document.createElement("div")
+document.append(div)
+div.innerText = 0
+function countUp(max, number = 0) {
+    if(number < max) number ++
+    countUp(max, number)
+    div.innerText = number
+}
+countUp(4559)
+                    </code></pre>
+
+                </div>
             </div>
         </section>
         <script src="./vibes.js" type="module"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js" integrity="sha512-EBLzUL8XLl+va/zAsmXwS7Z2B1F9HUHkZwyS/VKwh3S7T/U0nF4BaU29EP/ZSf6zgiIxYAnKLu6bJ8dqpmX5uw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>hljs.highlightAll();</script>
     </body>
 </html>

@@ -2,7 +2,7 @@ const greetings = [
     "Hello there",
     "Salutations be upon thee",
     "Greetings, friend",
-    "Welcome to my humble abode"
+    "Welcome to my house"
 ]
 
 export function randomQuote() {

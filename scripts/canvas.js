@@ -50,6 +50,9 @@ export function renderCanvas(stars) {
         ctx.lineWidth = star.size;
         ctx.strokeStyle = `rgba(255,255,255,${star.color}`;
         ctx.shadowColor = `rgba(255,255,255,${star.color}`;
+
+
+        //The following is proudly yoinked from StackOverflow
         // Horizontal distance of the shadow, in relation to the text.
         ctx.shadowOffsetX = 0; // integer
         // Vertical distance of the shadow, in relation to the text.

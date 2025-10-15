@@ -22,6 +22,7 @@ body {
 
 nav {
     position: fixed;
+    z-index: 1;
     display: flex;
     align-items: center;
     top: 0;
@@ -75,8 +76,15 @@ canvas {
 .hero {
     display: inline-flex;
     flex-direction: column;
-    height: 100dvh;
+    width: 100vw;
     justify-content: center;
+}
+
+.container-for-hero-container {
+    display: flex;
+    width: 100%;
+    gap: 25px;
+    flex-wrap: wrap;
 }
 .hero-container {
     border: 1px solid #444653;
@@ -86,15 +94,43 @@ canvas {
     backdrop-filter: blur(3px);
 }
 @media only screen and (max-width: 767px) {
+    nav {
+        backdrop-filter: blur(5px);
+    }
     .hero {
-        margin-left: 25px;
-        max-width: 400px;
+        margin-top: 100px;
+        align-items: center;
+        justify-content: center;
+    }
+    .container-for-hero-container {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .hero-container {
+        max-width: 80%;
+    }
+    .navlinks {
+        display: none;
+    }
+    .hljs {
+        padding: 15px !important;
     }
 }
 @media only screen and (min-width: 768px) {
     .hero {
         margin-left: 75px;
+        height: 100dvh;
+    }
+    .hero-container {
         max-width: 700px;
+    }
+    .container-for-hero-container {
+        gap: 55px;
+    }
+    .hljs {
+        padding: 35px !important;
     }
 }
 
@@ -119,4 +155,24 @@ canvas {
 .hero li {
     font-size: 1.1em;
     margin: 4px;
+}
+.define {
+    cursor: pointer;
+}
+
+
+.code-item {
+    padding: 15px;
+}
+.hljs {
+    
+    border: 1px solid #444653;
+    border-radius: 15px;
+    background: #0c0d0f33 !important;
+    background-color: #0c0d0f33;
+    backdrop-filter: blur(3px);
+
+}
+.language-js {
+    padding: 50px;
 }
