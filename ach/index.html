@@ -202,8 +202,8 @@
     </header>
 
     <div class="card">
-      <label for="medications">Paste medication names below (separated by commas, newlines, or semicolons)</label>
-      <textarea id="medications" placeholder="e.g., Amitriptyline, Metformin, Diphenhydramine&#10;or paste a list from your records..."></textarea>
+      <label for="medications">Paste any text containing medication names (the tool will find them automatically)</label>
+      <textarea id="medications" placeholder="Paste any text here - medication names will be detected automatically..."></textarea>
       <div class="buttons">
         <button class="btn-primary" onclick="checkMedications()">Check Medications</button>
         <button class="btn-secondary" onclick="clearAll()">Clear</button>
@@ -234,7 +234,7 @@
     </div>
 
     <div id="noResults" class="card no-results" style="display: none;">
-      No matching medications found. Try checking the spelling or using generic names.
+      No matching medications found in the text.
     </div>
 
     <footer>
@@ -1323,47 +1323,38 @@ const medicationDatabase = [
   { name: "Zopiclone", brands: ["zolpidem"], score: 0 },
   { name: "Zuclopenthixol", brands: [], score: 1 },
 ];
-    // Build search index
-    const searchIndex = new Map();
+
+    // Build list of all searchable terms with their medication reference
+    const searchTerms = [];
     medicationDatabase.forEach(med => {
-      searchIndex.set(med.name.toLowerCase(), med);
+      // Add main name
+      searchTerms.push({ term: med.name.toLowerCase(), med: med, matchedAs: med.name });
+      // Add brand names
       med.brands.forEach(brand => {
-        searchIndex.set(brand.toLowerCase().replace(/™/g, ''), med);
+        const cleanBrand = brand.replace(/™/g, '');
+        searchTerms.push({ term: cleanBrand.toLowerCase(), med: med, matchedAs: cleanBrand });
       });
     });
 
+    // Sort by length descending so longer matches are found first (e.g., "amitriptyline" before "amine")
+    searchTerms.sort((a, b) => b.term.length - a.term.length);
+
     function checkMedications() {
-      const text = document.getElementById('medications').value;
+      const text = document.getElementById('medications').value.toLowerCase();
       if (!text.trim()) {
         document.getElementById('results').style.display = 'none';
         document.getElementById('noResults').style.display = 'none';
         return;
       }
 
-      const tokens = text.split(/[\n,;\t]+/).map(t => t.trim()).filter(t => t.length > 0);
       const matches = [];
       const seen = new Set();
 
-      tokens.forEach(token => {
-        const normalized = token.toLowerCase().replace(/™/g, '');
-        
-        if (searchIndex.has(normalized)) {
-          const med = searchIndex.get(normalized);
-          if (!seen.has(med.name)) {
-            seen.add(med.name);
-            matches.push({ ...med, matchedOn: token });
-          }
-          return;
-        }
-
-        for (const [key, med] of searchIndex) {
-          if (!seen.has(med.name)) {
-            if (key.includes(normalized) || normalized.includes(key)) {
-              seen.add(med.name);
-              matches.push({ ...med, matchedOn: token });
-              break;
-            }
-          }
+      // Scan text for each medication/brand name
+      searchTerms.forEach(({ term, med, matchedAs }) => {
+        if (!seen.has(med.name) && text.includes(term)) {
+          seen.add(med.name);
+          matches.push({ ...med, matchedOn: matchedAs });
         }
       });
 
