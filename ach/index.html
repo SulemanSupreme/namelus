@@ -1324,20 +1324,9 @@ const medicationDatabase = [
   { name: "Zuclopenthixol", brands: [], score: 1 },
 ];
 
-    // Build list of all searchable terms with their medication reference
-    const searchTerms = [];
-    medicationDatabase.forEach(med => {
-      // Add main name
-      searchTerms.push({ term: med.name.toLowerCase(), med: med, matchedAs: med.name });
-      // Add brand names
-      med.brands.forEach(brand => {
-        const cleanBrand = brand.replace(/™/g, '');
-        searchTerms.push({ term: cleanBrand.toLowerCase(), med: med, matchedAs: cleanBrand });
-      });
-    });
-
-    // Sort by length descending so longer matches are found first (e.g., "amitriptyline" before "amine")
-    searchTerms.sort((a, b) => b.term.length - a.term.length);
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
 
     function checkMedications() {
       const text = document.getElementById('medications').value.toLowerCase();
@@ -1350,13 +1339,31 @@ const medicationDatabase = [
       const matches = [];
       const seen = new Set();
 
-      // Scan text for each medication/brand name
-      searchTerms.forEach(({ term, med, matchedAs }) => {
-        if (!seen.has(med.name) && text.includes(term)) {
+      // Check each medication
+      for (let i = 0; i < medicationDatabase.length; i++) {
+        const med = medicationDatabase[i];
+        if (seen.has(med.name)) continue;
+
+        // Check main name
+        const mainName = med.name.toLowerCase();
+        const mainRegex = new RegExp(escapeRegex(mainName), 'i');
+        if (mainRegex.test(text)) {
           seen.add(med.name);
-          matches.push({ ...med, matchedOn: matchedAs });
+          matches.push({ ...med, matchedOn: med.name });
+          continue;
         }
-      });
+
+        // Check brand names
+        for (let j = 0; j < med.brands.length; j++) {
+          const brand = med.brands[j].replace(/™/g, '');
+          const brandRegex = new RegExp(escapeRegex(brand.toLowerCase()), 'i');
+          if (brandRegex.test(text)) {
+            seen.add(med.name);
+            matches.push({ ...med, matchedOn: brand });
+            break;
+          }
+        }
+      }
 
       if (matches.length === 0) {
         document.getElementById('results').style.display = 'none';
