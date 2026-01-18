@@ -1,0 +1,154 @@
+<html>
+    <head>
+        <title>Countdown to Archery</title>
+    </head>
+    <style>
+        body {
+            background-image: url('https://wallpapers.com/images/hd/archery-red-silhouette-gwbjsboed5zsm6b9.jpg');
+            background-color: black;
+            color: white;
+
+  background-repeat: no-repeat;
+
+  /* anchor to bottom centre */
+  background-position: bottom center;
+
+  /* limit width while preserving aspect ratio */
+  background-size: min(100vw, 100vw) auto;
+        }
+        .center {
+
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 25px;
+        }
+        .timer {
+            font-size: 100px;
+            display: flex;
+            gap: 2px;
+        }
+        .animate-out {
+            animation: slideOut 0.5s forwards;
+        }
+        .animate-in {
+            animation: slideIn 0.5s forwards;
+        }
+        .timer-handler {
+            width: 100px;
+        }
+        .timer-handler div {
+            position: absolute;
+        }
+        @keyframes slideOut {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+        @keyframes slideIn {
+            0% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    <body>
+        <div>
+            <div class="center">
+                <div class="timer">
+                <div class="timer-hours timer-handler">
+                    <div class="current animate-out">00</div>
+                    <div class="next animate-in">00</div></div>
+                :
+                <div class="timer-mins timer-handler">
+
+                    <div class="current animate-out">00</div>
+                    <div class="next animate-in">00</div>
+                </div>
+                :
+                <div class="timer-secs timer-handler">
+                    <div class="current animate-out">00</div>
+                    <div class="next animate-in">00</div>
+                </div>
+            </div>
+            <div class="time-caption">hours until archery</div>
+            </div>
+        </div>
+        <script>
+            const targetDate = new Date("2026-01-19T12:00:00").getTime();
+
+            let currentHours = 0;
+            let currentMinutes = 0;
+            let currentSeconds = 0;
+
+            function TimeUpdate(element, time) {
+
+                    const next = element.querySelector('.next');
+                    const current = element.querySelector('.current')
+
+                    next.innerHTML = String(time).padStart(2, "0");
+
+                    current.classList.add('animate-out')
+                    next.classList.add('animate-in')
+
+
+                    setTimeout(() => {
+                        current.innerHTML = String(time).padStart(2, "0");
+                        current.classList.remove('animate-out')
+                        next.classList.remove('animate-in')
+                    }, 500);
+            }
+            setInterval(() => {
+                const now = new Date().getTime();
+                const timeUntilArchery = targetDate - now;
+                const hours = Math.floor(
+                    (timeUntilArchery % (1000 * 60 * 60 * 24)) /
+                        (1000 * 60 * 60)
+                );
+                const minutes = Math.floor(
+                    (timeUntilArchery % (1000 * 60 * 60)) / (1000 * 60)
+                );
+                const seconds = Math.floor(
+                    (timeUntilArchery % (1000 * 60)) / 1000
+                );
+
+                const timerElement = document.querySelector(".timer");
+                const hoursElement = document.querySelector(".timer-hours");
+                const minsElement = document.querySelector(".timer-mins");
+                const secsElement = document.querySelector(".timer-secs");
+
+                // 1 Move new time to next
+                // 2 Animate current out, next in
+                // 3 Swap classes
+                
+
+                if(currentSeconds !== seconds) {
+                    currentSeconds = seconds
+                    TimeUpdate(secsElement, seconds)
+                }
+                if(currentMinutes !== minutes) {
+                    currentMinutes = minutes
+                    TimeUpdate(minsElement, minutes)
+                }
+                if(currentHours !== hours) {
+                    currentHours = hours
+                    TimeUpdate(hoursElement, hours)
+                }
+
+                // hoursElement.innerHTML = String(hours).padStart(2, "0");
+                // minsElement.innerHTML = String(minutes).padStart(2, "0");
+                // secsElement.innerHTML = String(seconds).padStart(2, "0");
+            }, 1000);
+        </script>
+    </body>
+</html>
