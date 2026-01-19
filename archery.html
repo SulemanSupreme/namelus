@@ -85,8 +85,58 @@
             </div>
         </div>
         <script>
-            const targetDate = new Date("2026-01-20T09:00:00").getTime();
+            // Configuration
+            const START_DATE = new Date('2026-01-19');          // inclusive
+            const END_DATE   = new Date('2026-05-31');          // inclusive
 
+            // Exceptions: ISO date strings WITHOUT time
+            const exceptions = [
+            '2026-01-19',
+            ];
+
+            // Days of interest (JS: 0=Sun, 1=Mon, ..., 6=Sat)
+            const VALID_DAYS = new Set([1, 2, 5]); // Monday, Tuesday, Friday
+
+            function buildDates(start, end, exceptions) {
+            const exceptionSet = new Set(exceptions);
+            const dates = [];
+
+            for (
+                let d = new Date(start);
+                d <= end;
+                d.setDate(d.getDate() + 1)
+            ) {
+                const day = d.getDay();
+                if (!VALID_DAYS.has(day)) continue;
+
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+
+
+                const dateKey = `${yyyy}-${mm}-${dd}`;
+                if (exceptionSet.has(dateKey)) continue;
+
+                const hour = day === 1 ? 12 : 9; // Monday → 12pm, others → 9am
+
+                dates.push(`${yyyy}-${mm}-${dd}T${hour.toString().padStart(2, '0')}:00:00`);
+            }
+
+            return dates;
+            }
+
+            // Usage
+            const dates = buildDates(START_DATE, END_DATE, exceptions);
+            console.log(dates)
+            const now = Date.now();
+
+            const nextDateString = dates.find(d => new Date(d).getTime() > now);
+
+            if (!nextDateString) {
+                throw new Error("No future archery dates available");
+            }
+
+            const targetDate = new Date(nextDateString).getTime();
             let currentHours = 0;
             let currentMinutes = 0;
             let currentSeconds = 0;
