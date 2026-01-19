@@ -4,20 +4,19 @@
     </head>
     <style>
         body {
-            background-image: url('https://wallpapers.com/images/hd/archery-red-silhouette-gwbjsboed5zsm6b9.jpg');
+            background-image: url("https://wallpapers.com/images/hd/archery-red-silhouette-gwbjsboed5zsm6b9.jpg");
             background-color: black;
             color: white;
 
-  background-repeat: no-repeat;
+            background-repeat: no-repeat;
 
-  /* anchor to bottom centre */
-  background-position: bottom center;
+            /* anchor to bottom centre */
+            background-position: bottom center;
 
-  /* limit width while preserving aspect ratio */
-  background-size: min(100vw, 100vw) auto;
+            /* limit width while preserving aspect ratio */
+            background-size: min(100vw, 100vw) auto;
         }
         .center {
-
             position: fixed;
             top: 50%;
             left: 50%;
@@ -29,6 +28,9 @@
             display: flex;
             gap: 2px;
         }
+        #days-placeholder {
+            opacity: 0;
+        }
         .animate-out {
             animation: slideOut 0.5s forwards;
         }
@@ -38,8 +40,13 @@
         .timer-handler {
             width: 100px;
         }
-        .timer-handler div {
+        .timer-handler div,
+        .time-caption div {
             position: absolute;
+        }
+        .time-caption {
+            display: flex;
+            gap: 4px;
         }
         @keyframes slideOut {
             0% {
@@ -65,114 +72,126 @@
     <body>
         <div>
             <div class="center">
-                <div class="timer">
-                <div class="timer-hours timer-handler">
-                    <div class="current animate-out">00</div>
-                    <div class="next animate-in">00</div></div>
-                :
-                <div class="timer-mins timer-handler">
+                <div class="time-caption">
+                    <div id="days-left">
+                        <div class="current animate-out">0</div>
+                        <div class="next animate-in">0</div>
+                    </div>
+                    <span id="days-placeholder">0</span>
+                    days,
+                </div>
 
-                    <div class="current animate-out">00</div>
-                    <div class="next animate-in">00</div>
+                <div class="timer">
+                    <div class="timer-hours timer-handler">
+                        <div class="current animate-out">00</div>
+                        <div class="next animate-in">00</div>
+                    </div>
+                    :
+                    <div class="timer-mins timer-handler">
+                        <div class="current animate-out">00</div>
+                        <div class="next animate-in">00</div>
+                    </div>
+                    :
+                    <div class="timer-secs timer-handler">
+                        <div class="current animate-out">00</div>
+                        <div class="next animate-in">00</div>
+                    </div>
                 </div>
-                :
-                <div class="timer-secs timer-handler">
-                    <div class="current animate-out">00</div>
-                    <div class="next animate-in">00</div>
-                </div>
-            </div>
-            <div class="time-caption">hours until archery</div>
+                <div class="time-caption">hours until archery</div>
             </div>
         </div>
         <script>
             // Configuration
-            const START_DATE = new Date('2026-01-19');          // inclusive
-            const END_DATE   = new Date('2026-05-31');          // inclusive
+            const START_DATE = new Date("2026-01-19"); // inclusive
+            const END_DATE = new Date("2026-05-31"); // inclusive
 
             // Exceptions: ISO date strings WITHOUT time
-            const exceptions = [
-            '2026-01-19',
-            ];
+            const exceptions = ["2026-01-19"];
 
             // Days of interest (JS: 0=Sun, 1=Mon, ..., 6=Sat)
             const VALID_DAYS = new Set([1, 2, 5]); // Monday, Tuesday, Friday
 
             function buildDates(start, end, exceptions) {
-            const exceptionSet = new Set(exceptions);
-            const dates = [];
+                const exceptionSet = new Set(exceptions);
+                const dates = [];
 
-            for (
-                let d = new Date(start);
-                d <= end;
-                d.setDate(d.getDate() + 1)
-            ) {
-                const day = d.getDay();
-                if (!VALID_DAYS.has(day)) continue;
+                for (
+                    let d = new Date(start);
+                    d <= end;
+                    d.setDate(d.getDate() + 1)
+                ) {
+                    const day = d.getDay();
+                    if (!VALID_DAYS.has(day)) continue;
 
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, "0");
+                    const dd = String(d.getDate()).padStart(2, "0");
 
+                    const dateKey = `${yyyy}-${mm}-${dd}`;
+                    if (exceptionSet.has(dateKey)) continue;
 
-                const dateKey = `${yyyy}-${mm}-${dd}`;
-                if (exceptionSet.has(dateKey)) continue;
+                    const hour = day === 1 ? 12 : 9; // Monday → 12pm, others → 9am
 
-                const hour = day === 1 ? 12 : 9; // Monday → 12pm, others → 9am
+                    const addDate = new Date(
+                        d.getFullYear(),
+                        d.getMonth(),
+                        d.getDate(),
+                        hour,
+                    );
 
-                dates.push(`${yyyy}-${mm}-${dd}T${hour.toString().padStart(2, '0')}:00:00`);
-            }
+                    dates.push(addDate);
+                }
 
-            return dates;
+                return dates;
             }
 
             // Usage
             const dates = buildDates(START_DATE, END_DATE, exceptions);
-            console.log(dates)
             const now = Date.now();
 
-            const nextDateString = dates.find(d => new Date(d).getTime() > now);
+            const nextDateString = dates.find(
+                (d) => new Date(d).getTime() > now,
+            );
 
             if (!nextDateString) {
                 throw new Error("No future archery dates available");
             }
 
-            const targetDate = new Date(nextDateString).getTime();
+            const targetDate = nextDateString;
+            let currentDay = 0;
             let currentHours = 0;
             let currentMinutes = 0;
             let currentSeconds = 0;
 
-            function TimeUpdate(element, time) {
-
-                    const next = element.querySelector('.next');
-                    const current = element.querySelector('.current')
-
-                    next.innerHTML = String(time).padStart(2, "0");
-
-                    current.classList.add('animate-out')
-                    next.classList.add('animate-in')
-
-
-                    setTimeout(() => {
-                        current.innerHTML = String(time).padStart(2, "0");
-                        current.classList.remove('animate-out')
-                        next.classList.remove('animate-in')
-                    }, 500);
-            }
+            updateTime();
             setInterval(() => {
+                updateTime();
+            }, 1000);
+
+            function updateTime() {
                 const now = new Date().getTime();
                 const timeUntilArchery = targetDate - now;
+
+                const days = Math.floor(
+                    timeUntilArchery / (1000 * 60 * 60 * 24),
+                );
+                console.log(days);
+
                 const hours = Math.floor(
                     (timeUntilArchery % (1000 * 60 * 60 * 24)) /
-                        (1000 * 60 * 60)
+                        (1000 * 60 * 60),
                 );
                 const minutes = Math.floor(
-                    (timeUntilArchery % (1000 * 60 * 60)) / (1000 * 60)
+                    (timeUntilArchery % (1000 * 60 * 60)) / (1000 * 60),
                 );
                 const seconds = Math.floor(
-                    (timeUntilArchery % (1000 * 60)) / 1000
+                    (timeUntilArchery % (1000 * 60)) / 1000,
                 );
 
                 const timerElement = document.querySelector(".timer");
+                const dayElement = document.getElementById("days-left");
+                const dayPlaceholderElement =
+                    document.getElementById("days-placeholder");
                 const hoursElement = document.querySelector(".timer-hours");
                 const minsElement = document.querySelector(".timer-mins");
                 const secsElement = document.querySelector(".timer-secs");
@@ -180,25 +199,53 @@
                 // 1 Move new time to next
                 // 2 Animate current out, next in
                 // 3 Swap classes
-                
 
-                if(currentSeconds !== seconds) {
-                    currentSeconds = seconds
-                    TimeUpdate(secsElement, seconds)
+                if (currentSeconds !== seconds) {
+                    currentSeconds = seconds;
+                    TimeUpdate(secsElement, seconds);
                 }
-                if(currentMinutes !== minutes) {
-                    currentMinutes = minutes
-                    TimeUpdate(minsElement, minutes)
+                if (currentMinutes !== minutes) {
+                    currentMinutes = minutes;
+                    TimeUpdate(minsElement, minutes);
                 }
-                if(currentHours !== hours) {
-                    currentHours = hours
-                    TimeUpdate(hoursElement, hours)
+                if (currentHours !== hours) {
+                    currentHours = hours;
+                    TimeUpdate(hoursElement, hours);
+                }
+                if (currentDay !== days) {
+                    currentDay = days;
+                    TimeUpdate(dayElement, days, true);
+                    dayPlaceholderElement.innerHTML = String(day);
                 }
 
                 // hoursElement.innerHTML = String(hours).padStart(2, "0");
                 // minsElement.innerHTML = String(minutes).padStart(2, "0");
                 // secsElement.innerHTML = String(seconds).padStart(2, "0");
-            }, 1000);
+            }
+
+            function TimeUpdate(element, time, day = false) {
+                const next = element.querySelector(".next");
+                const current = element.querySelector(".current");
+
+                if (day === false) {
+                    next.innerHTML = String(time).padStart(2, "0");
+                } else {
+                    next.innerHTML = time;
+                }
+
+                current.classList.add("animate-out");
+                next.classList.add("animate-in");
+
+                setTimeout(() => {
+                    if (day === false) {
+                        current.innerHTML = String(time).padStart(2, "0");
+                    } else {
+                        current.innerHTML = time;
+                    }
+                    current.classList.remove("animate-out");
+                    next.classList.remove("animate-in");
+                }, 500);
+            }
         </script>
     </body>
 </html>
