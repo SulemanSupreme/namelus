@@ -78,7 +78,7 @@
                         <div class="next animate-in">0</div>
                     </div>
                     <span id="days-placeholder">0</span>
-                    days,
+                    <span id="day-or-days">days</span>
                 </div>
 
                 <div class="timer">
@@ -215,7 +215,13 @@
                 if (currentDay !== days) {
                     currentDay = days;
                     TimeUpdate(dayElement, days, true);
-                    dayPlaceholderElement.innerHTML = String(day);
+                    dayPlaceholderElement.innerHTML = String(days);
+                    if(days === 1) {
+                        document.getElementById('day-or-days').innerText = 'day'
+                    }else {
+
+                        document.getElementById('day-or-days').innerText = 'days'
+                    }
                 }
 
                 // hoursElement.innerHTML = String(hours).padStart(2, "0");
